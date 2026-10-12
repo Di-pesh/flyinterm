@@ -1,0 +1,137 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f7fb;
+  color: #1f2d3d;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.narrow {
+  max-width: 760px;
+}
+
+.hero {
+  background: linear-gradient(135deg, #1b2d3f, #2e4d6d 60%, #4d6c8d);
+  color: #fff;
+  padding: 72px 0 40px;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2.3rem, 4vw, 3.4rem);
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.95;
+}
+
+section {
+  margin-top: 28px;
+  background: #fff;
+  border: 1px solid #dde5ee;
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: 0 10px 24px rgba(20, 35, 52, 0.04);
+}
+
+h2 {
+  margin-top: 0;
+  color: #1a2d40;
+  font-size: 1.8rem;
+}
+
+h3 {
+  margin-top: 0;
+  color: #1f2d3d;
+}
+
+p, li {
+  font-size: 1.02rem;
+}
+
+code {
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+ul, ol {
+  padding-left: 20px;
+}
+
+.metrics-box {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-left: 4px solid #5778a5;
+  background: #f5f8fc;
+  border-radius: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  border: 1px solid #dfe7ef;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+th {
+  background: #f2f5f9;
+}
+
+figure {
+  margin: 18px 0 0;
+}
+
+figcaption {
+  margin-top: 8px;
+  color: #54657a;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid #e1e7ee;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-top: 20px;
+}
+
+a {
+  color: #1d5bd7;
+}
