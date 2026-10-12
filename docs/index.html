@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Refresh / Content Opportunity Scoring</title>
+    <meta
+      name="description"
+      content="A public research paper on ranked refresh recommendations for FlyRank content pages."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container narrow">
+        <p class="eyebrow">FlyRank ML Internship Capstone</p>
+        <h1>Refresh / Content Opportunity Scoring</h1>
+        <p class="subtitle">
+          A transparent, ranked review system for deciding which pages deserve a human refresh decision.
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section>
+        <h2>Abstract</h2>
+        <p>
+          This project studies a practical operational question: which anonymized content pages should an editorial team review next for refresh or maintenance? We use the public FlyRank starter dataset to build a transparent ranking system that combines stale-content, demand, and visibility signals. We compare a baseline rule against several learned models on a grouped client holdout, then choose the model that best helps prioritize a small review queue. The result is a ranked action engine for human triage, not a claim that content refresh causes changes in Google rankings or traffic. The analysis is designed to support editorial decisions, not prove causal search impact.
+        </p>
+      </section>
+
+      <section>
+        <h2>Problem statement</h2>
+        <p>
+          The decision supported by this work is narrow and operational: when an editorial team has a backlog of content pages, which ones are worth reviewing first for refresh, rewrite, or monitoring? The work does not claim to know why a model works in the broader search ecosystem. It instead gives a ranking and reason-code system that helps a team triage pages with the highest review value under a transparent, auditable rule set.
+        </p>
+      </section>
+
+      <section>
+        <h2>Data</h2>
+        <p>
+          The analysis uses the bundled anonymized starter dataset at <code>data/raw/content_refresh_anonymized.csv</code>, which is a 30,000-row content snapshot for pseudonymized clients. The data dictionary describes the column meanings and caveats, especially the fact that rate columns are percentages and that trend-derived labels must not be used as model inputs. The project is intentionally public-safe: no client names, no URLs, no domains, no raw queries, no credentials, and no private search data are used.
+        </p>
+        <p>
+          We exclude label-derived and outcome-window columns from the feature set, including fields that directly encode the target or the recent trend window. This makes the model a review aid rather than a claim about the algorithm. The feature set is restricted to content metadata, recency, word count, and public-safe opportunity variables that are available before the review decision is made.
+        </p>
+      </section>
+
+      <section>
+        <h2>Methodology</h2>
+        <p>
+          We compare a transparent baseline with multiple learned models on the same grouped client holdout. The baseline rule is: review pages that are both stale and visible. We score visibility using impression volume and combine it with content age and recency to create a human-readable priority score. We then compare the baseline with logistic regression, random forest, extra trees, and histogram gradient boosting using the same test rows and the same label: a retrospective decline indicator defined from trend direction.
+        </p>
+        <p>
+          The key validation choice is a grouped client split. Rows from the same pseudonymized client are kept together in the same split to reduce the risk that the model memorizes client-level patterns rather than learning more general ranking behavior. We report the base rate next to every metric and treat the results as a held-out ranking comparison, not as causal proof.
+        </p>
+
+        <div class="metrics-box">
+          <h3>Validation setup</h3>
+          <ul>
+            <li>Rows scored: 30,000</li>
+            <li>Declining-label rows: 16,262</li>
+            <li>Declining-label rate: 0.542</li>
+            <li>Split strategy: client_holdout</li>
+            <li>Target: is_declining_label</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Results</h2>
+        <p>
+          The primary metric for this task is precision@50, because the operational question is not “is the page generally declining?” but “which 50 pages deserve an editorial review first?” On that metric, the random forest model performed best on the client-grouped holdout, with a strong lift over the transparent baseline.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>ROC AUC</th>
+                <th>Avg precision</th>
+                <th>Precision@50</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>decision_tree</td>
+                <td>0.742</td>
+                <td>0.575</td>
+                <td>0.540</td>
+                <td>0.716</td>
+                <td>0.634</td>
+              </tr>
+              <tr>
+                <td>logistic_regression</td>
+                <td>0.700</td>
+                <td>0.522</td>
+                <td>0.400</td>
+                <td>0.567</td>
+                <td>0.566</td>
+              </tr>
+              <tr>
+                <td>random_forest</td>
+                <td>0.750</td>
+                <td>0.618</td>
+                <td>0.740</td>
+                <td>0.744</td>
+                <td>0.640</td>
+              </tr>
+              <tr>
+                <td>baseline_rules</td>
+                <td>0.627</td>
+                <td>0.468</td>
+                <td>0.240</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="chart-grid">
+          <figure>
+            <img src="../outputs/charts/top_feature_importance.svg" alt="Top feature importance chart" />
+            <figcaption>Top model features</figcaption>
+          </figure>
+          <figure>
+            <img src="../outputs/charts/top_reason_codes.svg" alt="Top reason codes chart" />
+            <figcaption>Most common review reasons</figcaption>
+          </figure>
+          <figure>
+            <img src="../outputs/charts/action_mix.svg" alt="Action mix chart" />
+            <figcaption>Recommended action mix</figcaption>
+          </figure>
+          <figure>
+            <img src="../outputs/charts/trend_distribution.svg" alt="Trend distribution chart" />
+            <figcaption>Trend distribution by label</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>Limitations and honest framing</h2>
+        <p>
+          This is a retrospective, decision-support analysis rather than a causal experiment. It does not prove that refreshing content causes traffic gains or ranking improvements. It also operates on a public, anonymized starter slice rather than the full warehouse, and the label is defined on a historical trend snapshot. Because of that, the appropriate language is observed, directional, and operational: the model helps a team rank pages for review, but it does not establish a causal mechanism or claim algorithmic certainty.
+        </p>
+      </section>
+
+      <section>
+        <h2>Ranked recommendations</h2>
+        <ol>
+          <li>Review the highest-ranked stale and visible pages first.</li>
+          <li>Use reason codes to explain why a page was selected for review.</li>
+          <li>Move low-volume stale pages to a monitoring queue unless there is independent editorial evidence of opportunity.</li>
+          <li>Re-run the queue after each content update cycle using the same validation and label logic.</li>
+          <li>Use the ranked queue as a triage aid, not as an automatic publishing decision.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Reproducibility</h2>
+        <p>
+          The analysis is reproducible from the repository. The core source is the starter CSV, the baseline and model scripts, and the capstone notebook. The model report and sample refresh queue are already generated in the repo, and the full results workflow can be rerun from the notebook or the project scripts.
+        </p>
+        <ul>
+          <li><a href="https://github.com/Di-pesh/flyinterm">Repository</a></li>
+          <li><a href="https://github.com/Di-pesh/flyinterm/blob/main/work/notebooks/capstone.ipynb">Capstone notebook</a></li>
+          <li><a href="https://github.com/Di-pesh/flyinterm/blob/main/outputs/model_report.md">Model report</a></li>
+          <li><a href="https://github.com/Di-pesh/flyinterm/blob/main/outputs/refresh_queue_sample.csv">Sample refresh queue</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Acknowledgments and data credit</h2>
+        <p>
+          Built on the <a href="https://flyrank.ai" target="_blank" rel="noopener noreferrer">FlyRank ML Internship dataset</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
